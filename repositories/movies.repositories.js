@@ -4,9 +4,9 @@ const actorsRepositories = require("./actors.repositories")
 const {Sequelize} = require("sequelize");
 
 module.exports = {
-    async createMovie({title, year, format, actors}) {
+    async createMovie({title, year, format, actors,source=null}) {
         try {
-            const newMovie = {title, year, format, actors}
+            const newMovie = {title, year, format, actors,source}
             let unexistedIds = []
             let existedIds = []
             for (const name of actors) {
@@ -166,7 +166,5 @@ module.exports = {
             console.log(err)
             errorHandler("Something went wrong", 500)
         }
-    }
-
-
+    },
 }

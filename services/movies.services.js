@@ -1,4 +1,6 @@
 const moviesRepositories = require('../repositories/movies.repositories')
+const {models: {Movie}} = require('../db/init_db')
+const {formateMoviesList,formateDate,createImportFile,formateResponse} = require('../functions/movies')
 
 module.exports = {
     createMovie({title, year, format, actors}) {
@@ -16,14 +18,25 @@ module.exports = {
     async getMoviesList(queryData) {
         const response = await moviesRepositories.getMoviesList(queryData)
         return formateResponse(response)
-
     },
+    async importMovies(fileBuffer) {
+
+        const date = formateDate()
+        const filePath = await createImportFile(fileBuffer, date)
+        movies = formateMoviesList(fileBuffer, filePath)
+        let  result = {data : [] , meta : { imported : 0 , total : 0}}
+
+        for (const movie of movies) {
+        newMovie =  await moviesRepositories.createMovie(movie)
+            console.log(result)
+            delete newMovie.actors
+
+            result.data.push(newMovie)
+        }
+        result.meta.imported = movies.length
+        result.meta.total = await Movie.count()
+
+        return result
+    }
 }
-function formateResponse(response){
-    response.meta = { total : response.rows.length}
-    response.data = response.rows
-    response.status = 1
-    delete response.rows
-    delete response.count
-    return response
-}
+

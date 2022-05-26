@@ -11,6 +11,7 @@ module.exports = (sequelize, Sequelize) => {
         title: {type: DataTypes.STRING, require: true},
         year: {type: DataTypes.CHAR(4), require: true},
         format: {type: DataTypes.STRING, require: true},
+        source : {type: DataTypes.STRING, require: true},
         actors: {type: DataTypes.ARRAY(DataTypes.TEXT), require: true}
     })
 
