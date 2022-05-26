@@ -29,12 +29,13 @@ module.exports = {
         for (const movie of movies) {
         newMovie =  await moviesRepositories.createMovie(movie)
             console.log(result)
-            delete newMovie.actors
+            delete newMovie.data.actors
 
-            result.data.push(newMovie)
+            result.data.push(newMovie.data)
         }
         result.meta.imported = movies.length
         result.meta.total = await Movie.count()
+        result.status = 1
 
         return result
     }

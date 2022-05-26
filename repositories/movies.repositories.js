@@ -25,7 +25,7 @@ module.exports = {
             await t.commit();
 
             dataValues.actors = await actorsRepositories.findAllActorsByIds([...existedIds, ...unexistedIds])
-            return dataValues
+            return {data : dataValues , status : 1}
         } catch (err) {
             await t.rollback();
             errorHandler("Something went wrong", 500)
@@ -67,7 +67,7 @@ module.exports = {
 
             const result = await Movie.findOne({where: {id}, attributes: ["id", "title", "year", "format"], raw: true})
             result.actors = await actorsRepositories.findAllActorsByIds([...existedIds, ...unexistedIds])
-            return result
+            return {data : result , status : 1}
         } catch (err) {
             await t.rollback();
             errorHandler("Something went wrong", 500)
@@ -78,7 +78,7 @@ module.exports = {
             const movie = await Movie.findOne({where: {id}, raw: true})
             if (movie) {
                 movie.actors = await actorsRepositories.findAllActorsByIds(movie.actors)
-                return movie
+                return {data : movie , status : 1}
             } else {
                 return {message: "No such movie"}
             }
