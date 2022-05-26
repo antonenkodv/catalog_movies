@@ -102,7 +102,6 @@ module.exports = {
             readStream.pipe(res);
 
         } catch (err) {
-            console.log(err)
             res.status(err.code).json({ok: false, message: err.message})
         }
     }

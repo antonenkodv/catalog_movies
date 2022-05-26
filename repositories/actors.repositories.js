@@ -9,5 +9,11 @@ module.exports = {
             },
             raw: true
         })
+    },
+    createOne(conditions){
+         return Actor.create(conditions)
+    },
+    findOne(conditions){
+         return Actor.findOne(conditions)
     }
 }

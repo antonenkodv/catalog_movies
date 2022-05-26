@@ -4,7 +4,7 @@ const {models: {User}} = require('../db/init_db')
 
 module.exports = async (req, res, next) => {
 
-    const token = req.headers['authorization']
+    const token = req.headers['authorization'] || req.headers['Authorization']
     if (token) {
         try {
             const {userInfo: {email}} = jwt.decode(token)
