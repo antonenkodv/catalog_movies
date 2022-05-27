@@ -8,7 +8,14 @@ module.exports = {
         for (let i = 0; i < arr.length; i++) {
             const str = arr[i]
             if (str.trim() !== '' || i === 0) {
-                [key, value] = str.split(":")
+                const key = str.split(":")[0]
+                let value = str.split(":")
+                if(value.length>2){
+                    value.splice(0,1)
+                    value = value.join(":")
+                }else {
+                    value = value[1]
+                }
                 obj[key] = value
             } else {
                 movies.push(obj);

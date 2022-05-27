@@ -1,7 +1,8 @@
 const moviesServices = require('../services/movies.services')
-const {errorHandler, validateParams} = require('../validation')
+const {errorHandler, validateParams, consistYear} = require('../validation')
 const fs = require("fs");
 const path = require("path");
+const moviesRepositories = require("../repositories/movies.repositories");
 
 module.exports = {
     async createMovie(req, res) {
@@ -13,6 +14,11 @@ module.exports = {
                 Array.isArray(actors) == false || actors.length === 0) {
                 errorHandler('Invalid input parameters', 400)
             }
+            if (!consistYear(year)) {
+                errorHandler('Invalid year,enter a valid value ', 400)
+            }
+            const isMovieExist = await moviesRepositories.findOne({where: {title}})
+            if (isMovieExist) errorHandler(`${title} is already exist`, 400)
 
             const response = await moviesServices.createMovie({title, year, format, actors})
             res.status(200).json(response)
@@ -39,9 +45,19 @@ module.exports = {
             const id = +req.params.id
             const {body: data} = req
 
-            if (!validateParams([Number(id)], "number")) {
+            if (!validateParams([Number(id)], "number") ||
+                !validateParams([data.year], "number")) {
                 errorHandler('Invalid input parameters', 400)
             }
+            if (!consistYear(data.year)) {
+                errorHandler('Invalid year,enter a valid value ', 400)
+            }
+
+            const isMovieExist = await moviesRepositories.findOne({where: {title: data.title}})
+            if (isMovieExist) errorHandler(`${data.title} is already exist`, 400)
+            const validId = await moviesRepositories.findOne({where: {id}})
+            if (!validId) errorHandler(`ID ${id} is incorrect,enter another`, 400)
+
             const response = await moviesServices.updateMovie({id, data})
             res.status(200).json(response)
         } catch (err) {
@@ -80,17 +96,23 @@ module.exports = {
     },
     async importMovies(req, res) {
         try {
+
             const fileBuffer = req.files[0].buffer
+            if (!fileBuffer.length) errorHandler("File can not be empty", 400)
+            const originName = req.files[0].originalname.split(".")
+            const extension = originName[originName.length - 1]
+            if (extension !== "txt") errorHandler("Invalid file type", 400)
             const response = await moviesServices.importMovies(fileBuffer)
             res.send(response)
         } catch (err) {
+            console.log(err)
             res.status(err.code).json({ok: false, message: err.message})
         }
     },
     async downloadMovie(req, res) {
         try {
             const id = +req.params.id
-            const filePath = path.join(__dirname,'..' ,'public','movies',`${id}.txt`);
+            const filePath = path.join(__dirname, '..', 'public', 'movies', `${id}.txt`);
             const stat = fs.statSync(filePath);
 
             res.writeHead(200, {

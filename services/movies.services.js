@@ -2,7 +2,7 @@ const moviesRepositories = require('../repositories/movies.repositories')
 const actorsRepositories = require("../repositories/actors.repositories");
 const {models: {Movie}, sequelize} = require('../db/init_db')
 const {formateMoviesList, formateDate, createImportFile, formateResponse} = require('../functions/movies')
-const {errorHandler} = require("../validation");
+const {errorHandler, validateParams} = require("../validation");
 const {Sequelize} = require("sequelize");
 
 module.exports = {
@@ -11,6 +11,7 @@ module.exports = {
             const newMovie = {title, year, format, actors, source}
             let unexistedIds = []
             let existedIds = []
+
             for (const name of actors) {
                 const actor = await actorsRepositories.findOne({where: {name}})
                 if (actor) existedIds.push(actor.id)
@@ -32,7 +33,6 @@ module.exports = {
             dataValues.actors = await actorsRepositories.findAllActorsByIds([...existedIds, ...unexistedIds])
             return {data: dataValues, status: 1}
         } catch (err) {
-            console.log(err)
             await t.rollback();
             errorHandler("Something went wrong", 500)
         }
@@ -83,7 +83,6 @@ module.exports = {
             result.actors = await actorsRepositories.findAllActorsByIds([...existedIds, ...unexistedIds])
             return {data: result, status: 1}
         } catch (err) {
-            console.log(err)
             await t.rollback();
             errorHandler("Something went wrong", 500)
         }
@@ -191,7 +190,21 @@ module.exports = {
         const date = formateDate()
         const filePath = await createImportFile(fileBuffer, date)
         movies = formateMoviesList(fileBuffer, filePath)
+
         let result = {data: [], meta: {imported: 0, total: 0}}
+
+        const invalidYear = movies.find(movie => {
+            if (movie.year < 1850 || movie.year > 2021 || !validateParams([Number(movie.year)], "number")) return movie
+        })
+
+        if (invalidYear) {
+            errorHandler('Invalid year,enter a valid value ', 400)
+        }
+
+        for (const movie of movies) {
+            const isMovieExist = await moviesRepositories.findOne({where : {title : movie.title }})
+            if(isMovieExist) errorHandler(`${movie.title} is already exist`,400)
+        }
 
         for (const movie of movies) {
             newMovie = await this.createMovie(movie)
