@@ -8,14 +8,16 @@ require('dotenv').config({
     path: process.env.NODE_ENV === 'development' &&
         path.resolve(process.cwd(), '.env.development')
 })
+
 const sequelize = new Sequelize(
-    process.env.DB_NAME,
-    process.env.DB_USERNAME,
-    process.env.DB_PASSWORD,{
+    process.env.POSTGRES_NAME ,
+    process.env.POSTGRES_USERNAME ,
+    process.env.POSTGRES_PASSWORD ,{
         dialect: 'postgres',
-        host : 'localhost',
+        host : process.env.POSTGRES_HOST,
         port : Number(5432)
     })
+
 
 const models = {
     User: UserModel(sequelize, Sequelize.DataTypes),

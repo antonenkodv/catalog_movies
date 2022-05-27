@@ -5,7 +5,7 @@ module.exports = (sequelize, Sequelize) => {
             type: DataTypes.UUID,
             primaryKey: true,
             unique: true,
-            require : true
+            require: true
         },
         name: {type: DataTypes.STRING, require: true},
         email: {

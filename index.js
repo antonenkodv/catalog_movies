@@ -18,13 +18,12 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"))
 
-app.get('/', () => 'Health Check')
 app.use(routers)
 
-app.listen(PORT || 5000, () => {
+app.listen(PORT || 8000, (c) => {
     console.log(`Server running on port ${PORT}`)
 })
 
 models.sequelize.sync()
-    .then(() => console.log('Initialized successfully'))
+    .then(() => console.log('Launched successfully'))
     .catch(err => console.log('[ERROR]', err))

@@ -109,6 +109,7 @@ module.exports = {
             {name: "title", value: title},
             {name: "search", value: search}]
             .find(param => param.value)
+
         let result = null
         try {
             if (searchParam) {
